@@ -3,8 +3,8 @@ package sbom
 import (
 	cond "github.com/vela-ssoc/vela-cond"
 	"github.com/vela-ssoc/vela-kit/lua"
-	process2 "github.com/vela-ssoc/vela-process"
-	track2 "github.com/vela-ssoc/vela-track"
+	process "github.com/vela-ssoc/vela-process"
+	track "github.com/vela-ssoc/vela-track"
 	"go.uber.org/ratelimit"
 	"reflect"
 	"time"
@@ -87,7 +87,7 @@ func (cli *client) pid(L *lua.LState, do handle) int {
 			return
 		}
 
-		p, err := process2.Pid(pid)
+		p, err := process.Pid(pid)
 		if err != nil {
 			xEnv.Errorf("%s sbom client %s pid process not found", cli.Name(), pid)
 		}
@@ -111,8 +111,8 @@ func (cli *client) pidTrack(L *lua.LState, do handle) int {
 		if pid < 0 {
 			return
 		}
-		tk := track2.ByPid(int32(pid), cnd)
-		p, err := process2.Pid(pid)
+		tk := track.ByPid(int32(pid), cnd)
+		p, err := process.Pid(pid)
 		var exData ExProcData
 		if err != nil {
 			xEnv.Infof("sbom client got pid %d fail %v", pid, err)
@@ -121,14 +121,14 @@ func (cli *client) pidTrack(L *lua.LState, do handle) int {
 			exData.Exe = p.Executable
 			exData.UserName = p.Username
 		}
-		tk.Visit(func(s track2.Section) { do(s.Value, exData) })
+		tk.Visit(func(s track.Section) { do(s.Value, exData) })
 		tk.Reset()
 	})
 }
 
 func (cli *client) process(L *lua.LState, do handle) int {
 	return cli.Range(L, 0, func(co *lua.LState, idx int) {
-		p := process2.CheckById(L, idx)
+		p := process.CheckById(L, idx)
 		if p == nil {
 			return
 		}
@@ -144,12 +144,12 @@ func (cli *client) processTrack(L *lua.LState, do handle) int {
 	cnd := cond.New(L.IsString(1))
 
 	return cli.Range(L, 1, func(co *lua.LState, idx int) {
-		p := process2.CheckById(L, idx)
+		p := process.CheckById(L, idx)
 		if p == nil {
 			return
 		}
-		tk := track2.ByProcess(p, cnd)
-		tk.Visit(func(s track2.Section) {
+		tk := track.ByProcess(p, cnd)
+		tk.Visit(func(s track.Section) {
 			do(s.Value, ExProcData{
 				Pid:      int(s.Pid),
 				Exe:      s.Exe,
@@ -164,8 +164,8 @@ func (cli *client) processTrack(L *lua.LState, do handle) int {
 func (cli *client) track(L *lua.LState, do handle) int {
 	cnd := cond.New(L.IsString(1))
 	return cli.Range(L, 1, func(co *lua.LState, idx int) {
-		tk := track2.ByName(L.CheckString(idx), cnd)
-		tk.Visit(func(s track2.Section) {
+		tk := track.ByName(L.CheckString(idx), cnd)
+		tk.Visit(func(s track.Section) {
 			do(s.Value, ExProcData{
 				Pid:      int(s.Pid),
 				Exe:      s.Exe,
