@@ -3,9 +3,9 @@ package sbom
 import (
 	cond "github.com/vela-ssoc/vela-cond"
 	"github.com/vela-ssoc/vela-kit/auxlib"
+	"github.com/vela-ssoc/vela-kit/lua"
 	"github.com/vela-ssoc/vela-kit/pipe"
 	vswitch "github.com/vela-ssoc/vela-switch"
-	"github.com/vela-ssoc/vela-kit/lua"
 	"go.uber.org/ratelimit"
 )
 
@@ -24,7 +24,7 @@ type config struct {
 	filter        *cond.Combine
 	filterCatalog *cond.Combine
 	vsh           *vswitch.Switch
-	pipe          *pipe.Px
+	pipe          *pipe.Chains
 	co            *lua.LState
 }
 

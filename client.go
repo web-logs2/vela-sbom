@@ -7,7 +7,6 @@ import (
 	"github.com/vela-ssoc/vela-kit/audit"
 	"github.com/vela-ssoc/vela-kit/kind"
 	"github.com/vela-ssoc/vela-kit/lua"
-	"github.com/vela-ssoc/vela-kit/opcode"
 	"github.com/vela-ssoc/vela-kit/vela"
 	"gopkg.in/tomb.v2"
 	"os"
@@ -61,7 +60,8 @@ func (cli *client) Report(lc *LCatalog) {
 		return
 	}
 
-	if e := xEnv.TnlSend(opcode.OpSbom, lc); e != nil {
+	//if e := xEnv.TnlSend(opcode.OpSbom, lc); e != nil {
+	if e := xEnv.Push("/api/v1/broker/collect/agent/sbom", lc); e != nil {
 		xEnv.Errorf("%s report catalog fail %v", cli.Name(), e)
 	}
 }

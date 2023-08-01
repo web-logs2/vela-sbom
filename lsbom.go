@@ -9,7 +9,6 @@ import (
 	"github.com/vela-ssoc/vela-kit/audit"
 	"github.com/vela-ssoc/vela-kit/auxlib"
 	"github.com/vela-ssoc/vela-kit/kind"
-	"github.com/vela-ssoc/vela-kit/opcode"
 	"github.com/vela-ssoc/vela-kit/vela"
 	"github.com/vela-ssoc/vela-sbom/detect/artifact"
 	"github.com/vela-ssoc/vela-sbom/detect/pkg"
@@ -22,7 +21,7 @@ import (
 )
 
 type ExProcData struct {
-	Pid      int    `json:"pid"'`
+	Pid      int32  `json:"pid"'`
 	Exe      string `json:"exe"`
 	UserName string `json:"username"`
 	Action   string `json:"action"`
@@ -51,11 +50,11 @@ func (lsb *LSbom) Scan() {
 		return
 	}
 
-	if err := xEnv.TnlSend(opcode.OpSbom, lsb.ToLCatalog()); err != nil {
+	//if err := xEnv.TnlSend(opcode.OpSbom, lsb.ToLCatalog()); err != nil {
+	if err := xEnv.Push("/api/v1/broker/collect/agent/sbom", lsb.ToLCatalog()); err != nil {
 		audit.Errorf("%s sbom report fail %v", lsb.ov.Filename, err)
 		return
 	}
-
 	xEnv.Debugf("%s sbom report succeed", lsb.ov.Filename)
 }
 
@@ -155,7 +154,8 @@ func (lsb *LSbom) reportSpdx() error {
 	enc.End("}}")
 	chunk = append(chunk, enc.Bytes()...)
 
-	if e := xEnv.TnlSend(opcode.OpSpdx, json.RawMessage(chunk)); e != nil {
+	//if e := xEnv.TnlSend(opcode.OpSpdx, json.RawMessage(chunk)); e != nil {
+	if e := xEnv.Push("/api/v1/broker/collect/agent/spdx", json.RawMessage(chunk)); e != nil {
 		return e
 	}
 

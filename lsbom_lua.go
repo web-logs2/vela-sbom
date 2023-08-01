@@ -3,7 +3,6 @@ package sbom
 import (
 	"fmt"
 	"github.com/vela-ssoc/vela-kit/lua"
-	"github.com/vela-ssoc/vela-kit/opcode"
 )
 
 func (lsb *LSbom) String() string                         { return fmt.Sprintf("%p", lsb) }
@@ -14,7 +13,7 @@ func (lsb *LSbom) AssertFunction() (*lua.LFunction, bool) { return nil, false }
 func (lsb *LSbom) Peek() lua.LValue                       { return lsb }
 
 func (lsb *LSbom) reportL(L *lua.LState) int {
-	err := xEnv.TnlSend(opcode.OpSbom, lsb.ToLCatalog())
+	err := xEnv.Push("/api/v1/broker/collect/agent/sbom", lsb.ToLCatalog())
 	if err != nil {
 		L.Push(lua.S2L(err.Error()))
 		return 1

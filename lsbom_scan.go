@@ -3,7 +3,7 @@ package sbom
 import (
 	"context"
 	"fmt"
-	"github.com/vela-ssoc/vela-kit/execpt"
+	"github.com/vela-ssoc/vela-kit/exception"
 	"github.com/vela-ssoc/vela-sbom/detect/sbom"
 	"github.com/vela-ssoc/vela-sbom/detect/source"
 	"github.com/vela-ssoc/vela-sbom/internal"
@@ -20,7 +20,7 @@ func Scan(opt *Option) (*sbom.SBOM, error) {
 		return nil, fmt.Errorf("could not generate source input for packages command: %w", err)
 	}
 
-	cause := execpt.New()
+	cause := exception.New()
 	s := exec(opt, *si, cause)
 	if cause.Len() > 0 {
 		return nil, cause.Wrap()
@@ -28,7 +28,7 @@ func Scan(opt *Option) (*sbom.SBOM, error) {
 	return s, nil
 }
 
-func exec(opt *Option, si source.Input, cause *execpt.Cause) *sbom.SBOM {
+func exec(opt *Option, si source.Input, cause *exception.Cause) *sbom.SBOM {
 	src, cleanup, err := source.New(si, &opt.Registry, opt.Exclusions)
 	if cleanup != nil {
 		defer cleanup()
@@ -59,7 +59,7 @@ func exec(opt *Option, si source.Input, cause *execpt.Cause) *sbom.SBOM {
 
 }
 
-func GenerateSBOM(src *source.Source, cause *execpt.Cause, opt *Option) (*sbom.SBOM, error) {
+func GenerateSBOM(src *source.Source, cause *exception.Cause, opt *Option) (*sbom.SBOM, error) {
 	tasks, err := Tasks(opt)
 	if err != nil {
 		return nil, err
@@ -79,7 +79,7 @@ func GenerateSBOM(src *source.Source, cause *execpt.Cause, opt *Option) (*sbom.S
 	return &s, nil
 }
 
-func buildRelationships(s *sbom.SBOM, src *source.Source, tasks []*Task, cause *execpt.Cause) {
+func buildRelationships(s *sbom.SBOM, src *source.Source, tasks []*Task, cause *exception.Cause) {
 	for _, task := range tasks {
 		v := task.run(&s.Artifacts, src)
 		if task.err != nil {

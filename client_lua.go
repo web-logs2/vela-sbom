@@ -82,7 +82,7 @@ func (cli *client) file(L *lua.LState, do handle) int {
 
 func (cli *client) pid(L *lua.LState, do handle) int {
 	return cli.Range(L, 0, func(co *lua.LState, idx int) {
-		pid := L.IsInt(idx)
+		pid := int32(L.IsInt(idx))
 		if pid < 0 {
 			return
 		}
@@ -107,11 +107,11 @@ func (cli *client) pid(L *lua.LState, do handle) int {
 func (cli *client) pidTrack(L *lua.LState, do handle) int {
 	cnd := cond.New(L.IsString(1))
 	return cli.Range(L, 1, func(co *lua.LState, idx int) {
-		pid := L.IsInt(idx)
+		pid := int32(L.IsInt(idx))
 		if pid < 0 {
 			return
 		}
-		tk := track.ByPid(int32(pid), cnd)
+		tk := track.ByPid(pid, cnd)
 		p, err := process.Pid(pid)
 		var exData ExProcData
 		if err != nil {
@@ -151,7 +151,7 @@ func (cli *client) processTrack(L *lua.LState, do handle) int {
 		tk := track.ByProcess(p, cnd)
 		tk.Visit(func(s track.Section) {
 			do(s.Value, ExProcData{
-				Pid:      int(s.Pid),
+				Pid:      s.Pid,
 				Exe:      s.Exe,
 				Args:     p.ArgsToString(),
 				UserName: s.User,
@@ -167,7 +167,7 @@ func (cli *client) track(L *lua.LState, do handle) int {
 		tk := track.ByName(L.CheckString(idx), cnd)
 		tk.Visit(func(s track.Section) {
 			do(s.Value, ExProcData{
-				Pid:      int(s.Pid),
+				Pid:      s.Pid,
 				Exe:      s.Exe,
 				UserName: s.User,
 			})

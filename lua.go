@@ -23,7 +23,6 @@ func WithEnv(env vela.Environment) {
 	log.WithEnv(env)
 	spdx.WithEnv(env)
 	cyclonedx.WithEnv(env)
-
 	kv := lua.NewUserKV()
 	kv.Set("client", lua.NewFunction(newLuaSbomClient))
 	kv.Set("file", lua.NewFunction(newLuaScanFileSbom))
